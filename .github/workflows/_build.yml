@@ -1,0 +1,42 @@
+# .github/workflows/_build.yml — Stable stage, segment 10
+# Reusable workflow: builds the Astro site by calling the build-astro composite.
+# Triggered only by workflow_call. Both ci.yml and deploy.yml call this.
+
+name: Build (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: Node.js 22.22 version to use for the build
+        required: false
+        default: '22.22'
+        type: string
+      artifact-name:
+        description: Name to give the uploaded build artifact.
+        required: false
+        default: dist
+        type: string
+    outputs:
+      artifact-name:
+        description: Name of the artifact produced by the build job.
+        value: ${{ jobs.build.outputs.artifact-name }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      artifact-name: ${{ steps.echo.outputs.name }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build React
+        uses: ./.github/actions/build-react
+        with:
+          node-version: ${{ inputs.node-version }}
+          artifact-name: ${{ inputs.artifact-name }}
+
+      - name: Echo artifact name
+        id: echo
+        run: echo "name=${{ inputs.artifact-name }}" >> $GITHUB_OUTPUT
