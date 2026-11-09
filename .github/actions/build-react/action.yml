@@ -1,0 +1,39 @@
+# .github/actions/build-astro/action.yml — Stable stage, segment 9
+# Composite action: setup Node, install with cache, build Astro, upload dist/.
+# Consumed by deploy.yml in segment 9 and by ci.yml + _build.yml in segment 10.
+
+name: Build React
+description: Install dependencies with cache, build the React static site, and upload the dist artifact.
+
+inputs:
+  node-version:
+    description: Node.js 22.22 version to use for the build
+    required: true
+    default: '22.22'
+  artifact-name:
+    description: Name to give the uploaded build artifact.
+    required: true
+    default: dist
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+      shell: bash
+
+    - name: Build React
+      run: npm run build
+      shell: bash
+
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: dist/
