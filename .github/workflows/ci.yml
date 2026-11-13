@@ -7,6 +7,10 @@ on:
   pull_request:
     branches: [main]
 
+permissions: {}
+
 jobs:
   build:
     uses: ./.github/workflows/_build.yml
+    permissions:
+      contents: read
